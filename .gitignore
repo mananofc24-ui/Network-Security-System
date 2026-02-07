@@ -1,0 +1,23 @@
+#Virtual environment
+.venv/
+venv/ 
+
+#Python cache
+__pycache__/
+*.__pyc 
+*.pyo 
+
+#Jupyter 
+.ipynb_checkpoints/ 
+
+#Environemnt variables
+.env 
+
+#os 
+.DS_Store 
+
+#Logs
+*.log 
+
+#vs code 
+.vscode/ 
