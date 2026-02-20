@@ -6,7 +6,8 @@ import sys
 import numpy as np 
 import pickle
 import tempfile
-
+from sklearn.model_selection import GridSearchCV 
+from sklearn.metrics import r2_score
 
 def read_yaml_file(file_path: str) -> dict:
     try:
@@ -75,7 +76,23 @@ def save_numpy_array_data(file_path: str, array: np.array):
             
     except Exception as e:
         raise NetworkSecurityException(e, sys) from e
-
+    
+    
+def load_numpy_array_data(file_path) -> np.array:
+    ''' 
+    Load numpy array data from file 
+    file_path : str location of file to load 
+    return : np.array data loaded
+    '''
+    try:
+        with open(file_path , 'rb') as file_obj:
+            return np.load(file_obj)
+                
+    except Exception as e:
+        raise NetworkSecurityException(e,sys) from e 
+    
+    
+    
 def save_object(file_path: str, obj: object) -> None:
     try:
         logging.info('Entered the save_object method of MainUtils class')
@@ -116,4 +133,50 @@ def save_object(file_path: str, obj: object) -> None:
     except Exception as e:
         raise NetworkSecurityException(e, sys)
     
-    logging.info('Exited the save_object method of MainUtils class')
+    logging.info('Exited the save_object method of MainUtils class') 
+    
+    
+def load_object(file_path):
+        try:
+            if not os.path.exists(file_path):
+                raise Exception(f"The file {file_path} does not exists")
+            
+            with open(file_path , 'rb') as file_obj:
+                print(file_obj) 
+                return pickle.load(file_obj) 
+        
+        except Exception as e:
+            raise NetworkSecurityException(e,sys) from e     
+        
+        
+def evaluate_models(X_train , y_train , X_test , y_test , models , params):
+    try: 
+        report = {}
+        best_model = None 
+        best_score = -1 
+        
+        for model_name , model in models.items():
+            
+            param_grid = params[model_name] 
+            
+            gs = GridSearchCV(model , param_grid , cv = 3)
+            gs.fit(X_train , y_train) 
+            
+            best_estimator = gs.best_estimator_ 
+            
+            y_test_pred = best_estimator.predict(X_test) 
+            test_score = r2_score(y_test , y_test_pred) 
+            
+            report[model_name] = test_score 
+            
+            if test_score > best_score:
+                best_score = test_score 
+                best_model = best_estimator 
+                
+        return report , best_model 
+    
+    except Exception as e:
+        raise NetworkSecurityException(e,sys)         
+                     
+            
+                   
